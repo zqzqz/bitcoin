@@ -22,8 +22,10 @@ std::string CBlock::ToString() const
         GetHash().ToString(),
         nVersion,
         hashPrevBlock.ToString(),
+        //edit
+        hashRef.ToString(),
         hashMerkleRoot.ToString(),
-        nTime, nBits, nNonce,
+        nTime, nBits, nNonce, txNonce,
         vtx.size());
     for (const auto& tx : vtx) {
         s << "  " << tx->ToString() << "\n";

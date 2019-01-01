@@ -162,6 +162,7 @@ private:
     // utility functions
     /** Clear the block's state and prepare for assembling a new block */
     void resetBlock();
+
     /** Add a tx to the block */
     void AddToBlock(CTxMemPool::txiter iter);
 

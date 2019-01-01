@@ -23,10 +23,18 @@ public:
     // header
     int32_t nVersion;
     uint256 hashPrevBlock;
+
+    // edit: add multiple references, default to 1 references
+    // edit: the header increases to 80+32+4 Bytes
+    uint256 hashRef;
+
     uint256 hashMerkleRoot;
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+
+    // edit: another Nonce for transaction sharding
+    uint32_t txNonce;
 
     CBlockHeader()
     {
@@ -39,20 +47,31 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
         READWRITE(hashPrevBlock);
+        // edit
+        READWRITE(hashRef);
+
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        // edit
+        READWRITE(txNonce);
     }
 
     void SetNull()
     {
         nVersion = 0;
         hashPrevBlock.SetNull();
+        // edit
+        hashRef.SetNull();
+
         hashMerkleRoot.SetNull();
         nTime = 0;
         nBits = 0;
         nNonce = 0;
+
+        // edit
+        txNonce = 0;
     }
 
     bool IsNull() const
@@ -113,6 +132,9 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        // edit
+        block.hashRef       = hashRef;
+        block.txNonce       = txNonce;
         return block;
     }
 

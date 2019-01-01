@@ -175,6 +175,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
     pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
     pblock->nNonce         = 0;
+    // edit
+    pblock->hashRef.SetNull();
+    pblock->txNonce       = 0;
+
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     CValidationState state;
@@ -218,6 +222,15 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
 bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& package)
 {
     for (const CTxMemPool::txiter it : package) {
+        // edit
+        arith_uint256 txHash = UintToArith256(it ->GetTx().GetHash());
+        CBlockHeader tmpBlock = this->pblock->GetBlockHeader();
+        tmpBlock.nNonce = 0;
+        tmpBlock.txNonce = 0;
+        arith_uint256 blockHash = UintToArith256(tmpBlock.GetHash());
+        if (((txHash ^ blockHash) & 0xff) != 0)
+            return false;
+        
         if (!IsFinalTx(it->GetTx(), nHeight, nLockTimeCutoff))
             return false;
         if (!fIncludeWitness && it->GetTx().HasWitness())
