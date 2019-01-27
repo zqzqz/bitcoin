@@ -9,6 +9,8 @@
 #include <primitives/transaction.h>
 #include <serialize.h>
 #include <uint256.h>
+#include <arith_uint256.h>
+#define POWER_CRITICAL 64
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -84,6 +86,24 @@ public:
     int64_t GetBlockTime() const
     {
         return (int64_t)nTime;
+    }
+
+    // edit
+    bool IsCritical()
+    {
+        arith_uint256 hash = UintToArith256(this->GetHash());
+        arith_uint256 bnTarget;
+        bool fNegative;
+        bool fOverflow;
+
+        bnTarget.SetCompact(this->nBits, &fNegative, &fOverflow);
+
+        // Check range
+        if (fNegative || bnTarget == 0 || fOverflow)
+            return false;
+        
+        arith_uint256 power = arith_uint256(POWER_CRITICAL);
+        return bnTarget > power * hash;
     }
 };
 

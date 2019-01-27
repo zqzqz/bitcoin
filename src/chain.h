@@ -176,6 +176,9 @@ public:
     //! pointer to the index of the predecessor of this block
     CBlockIndex* pprev;
 
+    // edit: pointer to the index of reference blocks
+    CBlockIndex* pref;
+
     //! pointer to the index of some further predecessor of this block
     CBlockIndex* pskip;
 
@@ -212,6 +215,9 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+    // edit
+    uint32_t txNonce;
+    uint256 hashRef;
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId;
@@ -234,12 +240,17 @@ public:
         nStatus = 0;
         nSequenceId = 0;
         nTimeMax = 0;
+        // edit
+        pref = nullptr;
 
         nVersion       = 0;
         hashMerkleRoot = uint256();
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
+        // edit
+        txNonce        = 0;
+        hashRef        = uint256();
     }
 
     CBlockIndex()
@@ -256,6 +267,9 @@ public:
         nTime          = block.nTime;
         nBits          = block.nBits;
         nNonce         = block.nNonce;
+        // edit
+        txNonce        = block.txNonce;
+        hashRef        = block.hashRef;
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -286,6 +300,9 @@ public:
         block.nTime          = nTime;
         block.nBits          = nBits;
         block.nNonce         = nNonce;
+        // edit
+        block.txNonce        = txNonce;
+        block.hashRef        = hashRef;
         return block;
     }
 
@@ -371,13 +388,19 @@ class CDiskBlockIndex : public CBlockIndex
 {
 public:
     uint256 hashPrev;
+    // edit
+    uint256 hashRef;
 
     CDiskBlockIndex() {
         hashPrev = uint256();
+        // edit
+        hashRef = uint256();
     }
 
     explicit CDiskBlockIndex(const CBlockIndex* pindex) : CBlockIndex(*pindex) {
         hashPrev = (pprev ? pprev->GetBlockHash() : uint256());
+        // edit
+        hashRef = (pref ? pref->GetBlockHash() : uint256());
     }
 
     ADD_SERIALIZE_METHODS;
@@ -401,10 +424,14 @@ public:
         // block header
         READWRITE(this->nVersion);
         READWRITE(hashPrev);
+        // edit
+        READWRITE(hashRef);
         READWRITE(hashMerkleRoot);
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        // edit
+        READWRITE(txNonce);
     }
 
     uint256 GetBlockHash() const
@@ -416,6 +443,9 @@ public:
         block.nTime           = nTime;
         block.nBits           = nBits;
         block.nNonce          = nNonce;
+        // edit
+        block.hashRef         = hashRef;
+        block.txNonce         = txNonce;
         return block.GetHash();
     }
 
@@ -426,7 +456,9 @@ public:
         str += CBlockIndex::ToString();
         str += strprintf("\n                hashBlock=%s, hashPrev=%s)",
             GetBlockHash().ToString(),
-            hashPrev.ToString());
+            hashPrev.ToString(),
+            // edit
+            hashRef.ToString());
         return str;
     }
 };

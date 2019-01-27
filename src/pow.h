@@ -9,6 +9,7 @@
 #include <consensus/params.h>
 
 #include <stdint.h>
+#include <util.h>
 
 class CBlockHeader;
 class CBlockIndex;

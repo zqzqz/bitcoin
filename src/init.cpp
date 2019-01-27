@@ -1204,6 +1204,7 @@ bool AppInitLockDataDirectory()
 bool AppInitMain()
 {
     const CChainParams& chainparams = Params();
+    LogPrintf("test log print\n");
     // ********************************************************* Step 4a: application initialization
 #ifndef WIN32
     CreatePidFile(GetPidFile(), getpid());
@@ -1633,6 +1634,7 @@ bool AppInitMain()
     // Either install a handler to notify us when genesis activates, or set fHaveGenesis directly.
     // No locking, as this happens before any background thread is started.
     if (chainActive.Tip() == nullptr) {
+        LogPrintf("TEST: tip not found, register handler\n");
         uiInterface.NotifyBlockTip.connect(BlockNotifyGenesisWait);
     } else {
         fHaveGenesis = true;
@@ -1657,6 +1659,7 @@ bool AppInitMain()
         while (!fHaveGenesis && !ShutdownRequested()) {
             condvar_GenesisWait.wait_for(lock, std::chrono::milliseconds(500));
         }
+        // printf("mp, map size = %d\n", mapBlockIndex.size());
         uiInterface.NotifyBlockTip.disconnect(BlockNotifyGenesisWait);
     }
 
