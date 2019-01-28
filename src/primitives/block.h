@@ -103,7 +103,7 @@ public:
             return false;
         
         arith_uint256 power = arith_uint256(POWER_CRITICAL);
-        return bnTarget > power * hash;
+        return bnTarget / power > hash;
     }
 };
 

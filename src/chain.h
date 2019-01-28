@@ -217,7 +217,6 @@ public:
     uint32_t nNonce;
     // edit
     uint32_t txNonce;
-    uint256 hashRef;
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     int32_t nSequenceId;
@@ -250,7 +249,6 @@ public:
         nNonce         = 0;
         // edit
         txNonce        = 0;
-        hashRef        = uint256();
     }
 
     CBlockIndex()
@@ -269,7 +267,6 @@ public:
         nNonce         = block.nNonce;
         // edit
         txNonce        = block.txNonce;
-        hashRef        = block.hashRef;
     }
 
     CDiskBlockPos GetBlockPos() const {
@@ -302,7 +299,8 @@ public:
         block.nNonce         = nNonce;
         // edit
         block.txNonce        = txNonce;
-        block.hashRef        = hashRef;
+        if (pref)
+            block.hashRef = pref->GetBlockHash();
         return block;
     }
 
@@ -469,6 +467,52 @@ private:
     std::vector<CBlockIndex*> vChain;
 
 public:
+    std::vector<CBlockIndex*> refCandidates;
+    CBlockIndex *GetRef() {
+        std::vector<CBlockIndex*>::iterator iter = refCandidates.begin();
+        if (iter == refCandidates.end()) {
+            return nullptr;
+        }
+        CBlockIndex *ref = *iter;
+        refCandidates.erase(iter);
+        return ref;
+    }
+    void UpdateRef(CBlockIndex* block) {
+        std::vector<uint256> hashList;
+        CBlockIndex* tmp = block->pprev;
+        while (tmp != nullptr) {
+            hashList.push_back(*tmp->phashBlock);
+            tmp = tmp->pprev;
+        }
+        std::vector<CBlockIndex*>::iterator iter = refCandidates.begin();
+        std::vector<CBlockIndex*>::iterator tmpIter;
+        std::vector<uint256>::iterator hashIter = hashList.begin();
+        std::vector<uint256>::iterator tmpHashIter;
+        bool eraseFlag;
+        while(iter != refCandidates.end()) {
+            eraseFlag = false;
+            while(hashIter != hashList.end()) {
+                if (*((*iter)->phashBlock) == *hashIter) {
+                    tmpHashIter = hashIter;
+                    hashIter++;
+                    hashList.erase(tmpHashIter);
+                    tmpIter = iter;
+                    iter++;
+                    refCandidates.erase(tmpIter);
+                    eraseFlag = true;
+                    break;
+                } else {
+                    hashIter++;
+                }
+            }
+            if (eraseFlag) continue;
+            else iter++;
+        }
+        if (!block->GetBlockHeader().IsCritical()) {
+            refCandidates.push_back(block);
+        }
+    }
+
     /** Returns the index entry for the genesis block of this chain, or nullptr if none. */
     CBlockIndex *Genesis() const {
         return vChain.size() > 0 ? vChain[0] : nullptr;
