@@ -181,6 +181,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->txNonce       = 0;
     if (pindexRef == nullptr) {
         pblock->hashRef.SetNull();
+        LogPrintf("TEST: generating blocks, ref null\n");
     }
     else {
         pblock->hashRef = pindexRef->GetBlockHash();

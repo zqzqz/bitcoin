@@ -2410,6 +2410,7 @@ bool CChainState::ConnectTip(CValidationState& state, const CChainParams& chainp
  */
 CBlockIndex* CChainState::FindMostWorkChain() {
     // edit
+    LogPrintf("TEST: enter FindMostWorkChain\n");
     mapTreeWeight.clear();
     mapGreedyWeight.clear();
     mapGreedyTree.clear();
@@ -2421,15 +2422,18 @@ CBlockIndex* CChainState::FindMostWorkChain() {
             mapGreedyTree.insert(std::make_pair(iterIndex->second, nullptr));
         }
     }
+
     for (; iterIndex != mapBlockIndex.end(); iterIndex++) {
         CBlockIndex* tmp = iterIndex->second;
         unsigned int weight = iterIndex->second->GetBlockHeader().IsCritical() ? POWER_CRITICAL : 1;
-        LogPrintf("TEST: enter FindMostWorkChain block %s weight %d\n", tmp->GetBlockHash().ToString(), weight);
         while (iterIndex->second->pprev != nullptr) {
+            if (mapTreeWeight.find(iterIndex->second->pprev) == mapTreeWeight.end())
+                break;
             mapTreeWeight[iterIndex->second->pprev] += weight;
             tmp = tmp->pprev;
         }
     }
+    // LogPrintf("TEST: enter FindMostWorkChain critical number %d\n", mapTreeWeight.size());
     std::map<CBlockIndex*, unsigned int, CBlockIndexWorkComparator>::iterator iterWeight = mapTreeWeight.begin();
     CBlockIndex *genesis = nullptr;
     for (; iterWeight != mapTreeWeight.end(); iterWeight++) {
@@ -2437,6 +2441,7 @@ CBlockIndex* CChainState::FindMostWorkChain() {
         bool fMissingData = !(iterWeight->first->nStatus & BLOCK_HAVE_DATA);
         // edit
         if (fFailedChain || fMissingData) {
+            LogPrintf("TEST: enter FindMostWorkChain block failed %s\n", iterWeight->first->GetBlockHash().ToString());
             continue;
         }
         if (iterWeight->first->pprev == nullptr) {
@@ -2452,7 +2457,7 @@ CBlockIndex* CChainState::FindMostWorkChain() {
         if (mapGreedyTree.find(iterWeight->first->pprev) == mapGreedyTree.end()) {
             mapGreedyTree.insert(std::make_pair(iterWeight->first->pprev, nullptr));
         }
-        if (mapGreedyWeight[iterWeight->first->pprev] < iterWeight->second) {
+        if (mapGreedyWeight[iterWeight->first->pprev] <= iterWeight->second) {
             mapGreedyWeight[iterWeight->first->pprev] = iterWeight->second;
             mapGreedyTree[iterWeight->first->pprev] = iterWeight->first;
         }
@@ -2469,6 +2474,7 @@ CBlockIndex* CChainState::FindMostWorkChain() {
         if (mapGreedyTree[blockTip] == nullptr) {
             return blockTip;
         }
+        // LogPrintf("TEST: enter FindMostWorkChain parse graph from %s to %s\n", blockTip->GetBlockHash().ToString(), mapGreedyTree[blockTip]->GetBlockHash().ToString());
         blockTip = mapGreedyTree[blockTip];
     }
     return blockTip;
@@ -2696,8 +2702,6 @@ bool CChainState::ActivateBestChain(CValidationState &state, const CChainParams&
                 if (pindexMostWork == nullptr || pindexMostWork == chainActive.Tip()) {
                     break;
                 }
-
-                LogPrintf("TEST: enter ActivateBestChain pindexMostWork %s\n", pindexMostWork->GetBlockHash().ToString());
 
                 bool fInvalidFound = false;
                 std::shared_ptr<const CBlock> nullBlockPtr;
@@ -3569,7 +3573,7 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
     AssertLockNotHeld(cs_main);
 
     {
-        LogPrintf("TEST: enter ProcessNewBlock\n");
+        LogPrintf("TEST: enter ProcessNewBlock blockhash %s\n", pblock->GetHash().ToString());
         CBlockIndex *pindex = nullptr;
         if (fNewBlock) *fNewBlock = false;
         CValidationState state;

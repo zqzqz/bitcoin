@@ -1209,7 +1209,16 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
 
     LOCK(cs_main);
 
+    // edit
+    BlockMap::iterator it = mapBlockIndex.begin();
+    unsigned int txNum = 0;
+    for (;it != mapBlockIndex.end(); it++) {
+        txNum += it->second->nTx;
+    }
+
     UniValue obj(UniValue::VOBJ);
+    obj.push_back(Pair("TEST:allblocks",        mapBlockIndex.size()));
+    obj.push_back(Pair("TEST:alltxs",           (int)txNum));
     obj.push_back(Pair("chain",                 Params().NetworkIDString()));
     obj.push_back(Pair("blocks",                (int)chainActive.Height()));
     obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));
