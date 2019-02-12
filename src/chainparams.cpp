@@ -36,30 +36,6 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
     genesis.hashRef.SetNull();
     genesis.hashMerkleRoot = BlockMerkleRoot(genesis);
 
-    // // edit: generate new genesis
-    // int nMaxTries = 100000;
-    // while (nMaxTries > 0) {
-    //     bool fNegative;
-    //     bool fOverflow;
-    //     arith_uint256 bnTarget;
-    //     bnTarget.SetCompact(genesis.nBits, &fNegative, &fOverflow);
-
-    //     // Check range
-    //     if (fNegative || bnTarget == 0 || fOverflow) {
-    //         break;
-    //     }
-
-    //     // Check proof of work matches claimed amount
-    //     if (UintToArith256(genesis.GetHash()) > bnTarget / POWER_CRITICAL || UintToArith256(genesis.GetHash()) > arith_uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")) {
-    //         ++genesis.nNonce;
-    //         --nMaxTries;
-    //         continue;
-    //     }
-            
-    //     LogPrintf("TEST: create genesis Nonce %d\n", genesis.nNonce);
-    //     LogPrintf("TEST: genesis hash %s\n", genesis.GetHash().GetHex());
-    //     break;
-    // }
     return genesis;
 }
 

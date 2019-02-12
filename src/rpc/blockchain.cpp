@@ -1211,14 +1211,28 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
 
     // edit
     BlockMap::iterator it = mapBlockIndex.begin();
+    std::vector<CTransactionRef>::iterator txit;
+    std::map<uint256, int> txMap;
     unsigned int txNum = 0;
+    unsigned int txAccNum = 0;
     for (;it != mapBlockIndex.end(); it++) {
+        std::shared_ptr<CBlock> pblockNew = std::make_shared<CBlock>();
+        if (!ReadBlockFromDisk(*pblockNew, it->second, Params().GetConsensus()))
+            continue;
+        for (txit = pblockNew->vtx.begin(); txit != pblockNew->vtx.end(); txit++) {
+            uint256 txHash = (*txit)->GetHash();
+            if (txMap[txHash] == 0) {
+                txMap[txHash] = 1;
+                txAccNum++;
+            }
+        }
         txNum += it->second->nTx;
     }
 
     UniValue obj(UniValue::VOBJ);
-    obj.push_back(Pair("TEST:allblocks",        mapBlockIndex.size()));
-    obj.push_back(Pair("TEST:alltxs",           (int)txNum));
+    obj.push_back(Pair("TEST:all_blocks",        mapBlockIndex.size()));
+    obj.push_back(Pair("TEST:all_txs",           (int)txNum));
+    obj.push_back(Pair("TEST:unrepeated_txs",    (int)txAccNum));
     obj.push_back(Pair("chain",                 Params().NetworkIDString()));
     obj.push_back(Pair("blocks",                (int)chainActive.Height()));
     obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));

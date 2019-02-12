@@ -10,7 +10,9 @@
 #include <serialize.h>
 #include <uint256.h>
 #include <arith_uint256.h>
-#define POWER_CRITICAL 64
+#define POWER_CRITICAL 16
+#define POWER_TX_SHARD 2
+#define NUM_TX_SHARD 7
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -104,6 +106,16 @@ public:
         
         arith_uint256 power = arith_uint256(POWER_CRITICAL);
         return bnTarget / power > hash;
+    }
+
+    // edit
+    bool IsTxShard(uint256 hash)
+    {
+        uint32_t tmpNonce = this->nNonce;
+        this->nNonce = 0;
+        uint256 blockhash = this->GetHash();
+        this->nNonce = tmpNonce;
+        return (UintToArith256(blockhash) & arith_uint256(NUM_TX_SHARD)) == (UintToArith256(hash) & arith_uint256(NUM_TX_SHARD));
     }
 };
 

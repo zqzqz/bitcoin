@@ -55,8 +55,6 @@
 
 #define MICRO 0.000001
 #define MILLI 0.001
-// edit
-#define POWER_CRITICAL 64
 
 /**
  * Global state
@@ -2698,6 +2696,22 @@ bool CChainState::ActivateBestChain(CValidationState &state, const CChainParams&
                     pindexMostWork = FindMostWorkChain();
                 }
 
+                // edit
+                if (pblock != nullptr) {
+                    CBlockIndex *pindexNew = mapBlockIndex[pblock->GetHash()];
+                    if (pindexNew && (!pblock->GetBlockHeader().IsCritical())) {
+                        // CCoinsViewCache view(pcoinsTip.get());
+                        // bool rv = ConnectBlock(pblock, state, pindexNew, view, chainparams);
+                        // GetMainSignals().BlockChecked(blockConnecting, state);
+                        // if (!rv) {
+                        //     if (! state.IsInvalid()) {
+                                mempool.removeForBlock(pblock->vtx, pindexNew->nHeight);
+                                // disconnectpool.removeForBlock(pblock->vtx);
+                        //     }
+                        // }
+                    }
+                }
+                
                 // Whether we have anything to do at all.
                 if (pindexMostWork == nullptr || pindexMostWork == chainActive.Tip()) {
                     break;
@@ -3431,8 +3445,8 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
     // edit
     if (pindex == nullptr) {
         pindex = AddToBlockIndex(block);
-        if (pindex->pref != nullptr)
-            LogPrintf("TEST: enter AcceptBlockHeader ref %s\n", pindex->pref->GetBlockHash().ToString());
+        // if (pindex->pref != nullptr)
+        //     LogPrintf("TEST: enter AcceptBlockHeader ref %s\n", pindex->pref->GetBlockHash().ToString());
         chainActive.UpdateRef(pindex);
     }
 

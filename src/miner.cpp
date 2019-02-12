@@ -430,14 +430,15 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
         onlyUnconfirmed(ancestors);
         ancestors.insert(iter);
 
-        // Test if all tx's are Final
-        if (!TestPackageTransactions(ancestors)) {
-            if (fUsingModified) {
-                mapModifiedTx.get<ancestor_score>().erase(modit);
-                failedTx.insert(iter);
-            }
-            continue;
-        }
+        // edit: ref blocks are not confirmed
+        // // Test if all tx's are Final
+        // if (!TestPackageTransactions(ancestors)) {
+        //     if (fUsingModified) {
+        //         mapModifiedTx.get<ancestor_score>().erase(modit);
+        //         failedTx.insert(iter);
+        //     }
+        //     continue;
+        // }
 
         // This transaction will make it in; reset the failed counter.
         nConsecutiveFailed = 0;
@@ -447,6 +448,10 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
         SortForBlock(ancestors, iter, sortedEntries);
 
         for (size_t i=0; i<sortedEntries.size(); ++i) {
+            uint256 txhash = sortedEntries[i]->GetSharedTx()->GetHash();
+            if (! pblock->IsTxShard(txhash)) {
+                continue;
+            }
             AddToBlock(sortedEntries[i]);
             // Erase from the modified set, if present
             mapModifiedTx.erase(sortedEntries[i]);
