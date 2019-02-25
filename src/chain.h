@@ -177,7 +177,7 @@ public:
     CBlockIndex* pprev;
 
     // edit: pointer to the index of reference blocks
-    CBlockIndex* pref;
+    std::vector<CBlockIndex*> pref;
 
     //! pointer to the index of some further predecessor of this block
     CBlockIndex* pskip;
@@ -240,7 +240,7 @@ public:
         nSequenceId = 0;
         nTimeMax = 0;
         // edit
-        pref = nullptr;
+        pref.clear();
 
         nVersion       = 0;
         hashMerkleRoot = uint256();
@@ -299,8 +299,14 @@ public:
         block.nNonce         = nNonce;
         // edit
         block.txNonce        = txNonce;
-        if (pref)
-            block.hashRef = pref->GetBlockHash();
+        for (size_t i = 0; i < pref.size() && i < NUM_REF; i++) {
+            block.hashRef.push_back(pref[i]->GetBlockHash());
+        }
+        while (block.hashRef.size() < NUM_REF) {
+            uint256 tmp;
+            tmp.SetNull();
+            block.hashRef.push_back(tmp);
+        }
         return block;
     }
 
@@ -328,7 +334,7 @@ public:
         int64_t* pend = &pmedian[nMedianTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
+        for (size_t i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
@@ -387,18 +393,31 @@ class CDiskBlockIndex : public CBlockIndex
 public:
     uint256 hashPrev;
     // edit
-    uint256 hashRef;
+    std::vector<uint256> hashRef;
 
     CDiskBlockIndex() {
         hashPrev = uint256();
         // edit
-        hashRef = uint256();
+        hashRef.clear();
+        for (size_t i = 0; i < NUM_REF; i++) {
+            uint256 tmp;
+            tmp.SetNull();
+            hashRef.push_back(tmp);
+        }
     }
 
     explicit CDiskBlockIndex(const CBlockIndex* pindex) : CBlockIndex(*pindex) {
         hashPrev = (pprev ? pprev->GetBlockHash() : uint256());
         // edit
-        hashRef = (pref ? pref->GetBlockHash() : uint256());
+        hashRef.clear();
+        for (size_t i = 0; i < pref.size() && i < NUM_REF; i++) {
+            hashRef.push_back(pref[i]->GetBlockHash());
+        }
+        while (hashRef.size() < NUM_REF) {
+            uint256 tmp;
+            tmp.SetNull();
+            hashRef.push_back(tmp);
+        }
     }
 
     ADD_SERIALIZE_METHODS;
@@ -454,9 +473,7 @@ public:
         str += CBlockIndex::ToString();
         str += strprintf("\n                hashBlock=%s, hashPrev=%s)",
             GetBlockHash().ToString(),
-            hashPrev.ToString(),
-            // edit
-            hashRef.ToString());
+            hashPrev.ToString());
         return str;
     }
 };

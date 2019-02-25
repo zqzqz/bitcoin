@@ -124,8 +124,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     LOCK2(cs_main, mempool.cs);
     CBlockIndex* pindexPrev = chainActive.Tip();
     assert(pindexPrev != nullptr);
-    // edit
-    CBlockIndex* pindexRef = chainActive.GetRef();
     nHeight = pindexPrev->nHeight + 1;
 
     pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
@@ -179,12 +177,18 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblock->nNonce         = 0;
     // edit
     pblock->txNonce       = 0;
-    if (pindexRef == nullptr) {
-        pblock->hashRef.SetNull();
-        LogPrintf("TEST: generating blocks, ref null\n");
-    }
-    else {
-        pblock->hashRef = pindexRef->GetBlockHash();
+    for (int i = 0; i < NUM_REF; i++) {
+        // edit
+        CBlockIndex* pindexRef = chainActive.GetRef();
+        if (pindexRef == nullptr) {
+            uint256 tmp;
+            tmp.SetNull();
+            pblock->hashRef.push_back(tmp);
+            LogPrintf("TEST: generating blocks, ref null\n");
+        }
+        else {
+            pblock->hashRef.push_back(pindexRef->GetBlockHash());
+        }
     }
 
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);

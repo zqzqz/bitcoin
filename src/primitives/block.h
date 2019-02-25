@@ -13,6 +13,7 @@
 #define POWER_CRITICAL 16
 #define POWER_TX_SHARD 2
 #define NUM_TX_SHARD 7
+#define NUM_REF 4
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -30,7 +31,7 @@ public:
 
     // edit: add multiple references, default to 1 references
     // edit: the header increases to 80+32+4 Bytes
-    uint256 hashRef;
+    std::vector<uint256> hashRef;
 
     uint256 hashMerkleRoot;
     uint32_t nTime;
@@ -67,7 +68,12 @@ public:
         nVersion = 0;
         hashPrevBlock.SetNull();
         // edit
-        hashRef.SetNull();
+        hashRef.clear();
+        for (size_t i = 0; i < NUM_REF; i++) {
+            uint256 tmp;
+            tmp.SetNull();
+            hashRef.push_back(tmp);
+        }
 
         hashMerkleRoot.SetNull();
         nTime = 0;
@@ -165,7 +171,15 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         // edit
-        block.hashRef       = hashRef;
+        block.hashRef.clear();
+        for (size_t i = 0; i < hashRef.size() && i < NUM_REF; i++) {
+            block.hashRef.push_back(hashRef[i]);
+        }
+        while (block.hashRef.size() < NUM_REF) {
+            uint256 tmp;
+            tmp.SetNull();
+            block.hashRef.push_back(tmp);
+        }
         block.txNonce       = txNonce;
         return block;
     }

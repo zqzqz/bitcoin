@@ -156,8 +156,8 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
     if (blockindex->pprev)
         result.push_back(Pair("previousblockhash", blockindex->pprev->GetBlockHash().GetHex()));
     // edit
-    if (blockindex->pref)
-        result.push_back(Pair("referenceblockhash", blockindex->pref->GetBlockHash().GetHex()));
+    for (size_t i = 0; i < blockindex->pref.size(); i++)
+        result.push_back(Pair("referenceblockhash", blockindex->pref[i]->GetBlockHash().GetHex()));
     CBlockIndex *pnext = chainActive.Next(blockindex);
     if (pnext)
         result.push_back(Pair("nextblockhash", pnext->GetBlockHash().GetHex()));

@@ -1584,7 +1584,7 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
     }
 
     // undo transactions in reverse order
-    for (int i = block.vtx.size() - 1; i >= 0; i--) {
+    for (size_t i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = *(block.vtx[i]);
         uint256 hash = tx.GetHash();
         bool is_coinbase = tx.IsCoinBase();
@@ -1704,7 +1704,7 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     LOCK(cs_main);
     int32_t nVersion = VERSIONBITS_TOP_BITS;
 
-    for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
+    for (size_t i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
         ThresholdState state = VersionBitsState(pindexPrev, params, (Consensus::DeploymentPos)i, versionbitscache);
         if (state == THRESHOLD_LOCKED_IN || state == THRESHOLD_STARTED) {
             nVersion |= VersionBitsMask(params, (Consensus::DeploymentPos)i);
@@ -2186,7 +2186,7 @@ void static UpdateTip(const CBlockIndex *pindexNew, const CChainParams& chainPar
             }
         }
         // Check the version of the last 100 blocks to see if we need to upgrade:
-        for (int i = 0; i < 100 && pindex != nullptr; i++)
+        for (size_t i = 0; i < 100 && pindex != nullptr; i++)
         {
             int32_t nExpectedVersion = ComputeBlockVersion(pindex->pprev, chainParams.GetConsensus());
             if (pindex->nVersion > VERSIONBITS_LAST_OLD_BLOCK_VERSION && (pindex->nVersion & ~nExpectedVersion) != 0)
@@ -2475,6 +2475,7 @@ CBlockIndex* CChainState::FindMostWorkChain() {
         // LogPrintf("TEST: enter FindMostWorkChain parse graph from %s to %s\n", blockTip->GetBlockHash().ToString(), mapGreedyTree[blockTip]->GetBlockHash().ToString());
         blockTip = mapGreedyTree[blockTip];
     }
+    LogPrintf("TEST: enter FindMostWorkChain %s", blockTip->GetBlockHash().ToString());
     return blockTip;
     // do {
     //     CBlockIndex *pindexNew = nullptr;
@@ -2944,11 +2945,15 @@ CBlockIndex* CChainState::AddToBlockIndex(const CBlockHeader& block)
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
         pindexNew->BuildSkip();
     }
-    miPrev = mapBlockIndex.find(block.hashRef);
-    if (miPrev != mapBlockIndex.end())
-    {
-        pindexNew->pref = (*miPrev).second;
+    for (size_t i = 0; i < block.hashRef.size(); i++) {
+        if (block.hashRef[i].IsNull()) break;
+        miPrev = mapBlockIndex.find(block.hashRef[i]);
+        if (miPrev != mapBlockIndex.end() && pindexNew->pref.size() < NUM_REF)
+        {
+            pindexNew->pref.push_back((*miPrev).second);
+        }
     }
+
     pindexNew->nTimeMax = (pindexNew->pprev ? std::max(pindexNew->pprev->nTimeMax, pindexNew->nTime) : pindexNew->nTime);
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);

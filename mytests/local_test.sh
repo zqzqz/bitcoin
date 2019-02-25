@@ -6,13 +6,16 @@ BITCOIN_CLI_BIN="/home/zqz/Documents/bitcoin/src/bitcoin-cli "$REGTEST
 # BITCOIND_BIN="/home/zqz/Documents/bitcoin0/src/bitcoind "$REGTEST
 # BITCOIN_CLI_BIN="/home/zqz/Documents/bitcoin0/src/bitcoin-cli "$REGTEST
 
-# $BITCOIND_BIN -daemon
-# sleep 3
-# $BITCOIN_CLI_BIN generate 2000
-# ADDR=`$BITCOIN_CLI_BIN getnewaddress`
-# echo "Addr "$ADDR
-# TX=`$BITCOIN_CLI_BIN sendtoaddress $ADDR 0.1`
-# echo "Tx "$TX
+# starting
+cd ~/.bitcoin && ./restart.sh && cd -
+$BITCOIND_BIN -daemon
+sleep 3
+$BITCOIN_CLI_BIN generate 5
+ADDR=`$BITCOIN_CLI_BIN getnewaddress`
+echo "Addr "$ADDR
+TX=`$BITCOIN_CLI_BIN sendtoaddress $ADDR 0.1`
+echo "Tx "$TX
+# chain launched
 
 for i in $(seq 1 1)
 do
