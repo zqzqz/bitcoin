@@ -1,13 +1,12 @@
 #! /bin/bash
+source $(cd `dirname $0`; pwd)/config
 
-SRC_DIR="/home/zqz/Documents/bitcoin/src"
-TEST_DIR="/home/zqz/Documents/bitcoin/mytests"
-SERVER_DIR="/home/ubuntu/bitcoin/mytests"
-IP_LIST=`cat ${TEST_DIR}/ip.txt`
+SRC_DIR=${BASE_DIR}"/bitcoin/src"
+TEST_DIR=${BASE_DIR}"/bitcoin/mytests"
+SERVER_TEST_DIR=${SERVER_DIR}"/bitcoin/mytests"
+IP_LIST=$(cat ${TEST_DIR}/ip.txt)
 IP_ARRAY=($IP_LIST)
 
-KEY_CONF="-i ~/.ssh/ubuntu2.pem"
-USER_NAME="ubuntu"
 NUM_NEIGHBOR=10
 
 echo "Launching client"
@@ -15,7 +14,7 @@ echo "Launching client"
 # launch daemon server
 for IP in $IP_LIST
 do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_DIR}/server_setup.sh 2>&1 > /home/ubuntu/setup_log" &
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_TEST_DIR}/server_setup.sh 2>&1 > ${SERVER_DIR}/setup_log" &
     sleep 0.5
 done
 
@@ -30,11 +29,9 @@ done
 echo "Configuring accounts"
 
 # configure accounts
-if [ -f ${TEST_DIR}/account.txt ]; then
-    rm ${TEST_DIR}/account.txt
 for IP in $IP_LIST
 do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bitcoin-cli -regtest getnewaddress > /home/ubuntu/account.txt" &
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bitcoin-cli -regtest getnewaddress > ${SERVER_DIR}/account.txt" &
     sleep 0.1
 done
 

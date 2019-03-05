@@ -1,0 +1,4 @@
+BASE_DIR="/home/zqz/Documents"
+SERVER_DIR="/home/ubuntu"
+KEY_CONF="-i ~/.ssh/ubuntu2.pem"
+USER_NAME="ubuntu"

@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
+source $(cd `dirname $0`; pwd)/config
 
 BALANCE=`bitcoin-cli -regtest getbalance`
-ACCOUNT=`cat /home/ubuntu/account.txt`
+ACCOUNT=`cat ${SERVER_DIR}/account.txt`
 MAX_TRY=2000
 
 while [ "$BALANCE" -eq 0 ]

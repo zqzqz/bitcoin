@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
+source $(cd `dirname $0`; pwd)/config
 
-BITCOIN_DIR="/home/ubuntu/.bitcoin/regtest"
-SERVER_DIR="/home/ubuntu"
+BITCOIN_DIR=${SERVER_DIR}"/.bitcoin/regtest"
+
 if [ -d ${BITCOIN_DIR} ]; then
     rm -rf ${BITCOIN_DIR}
 fi

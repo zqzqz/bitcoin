@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+source $(cd `dirname $0`; pwd)/config
 
 sudo apt-get update
 sudo apt-get -y install git
@@ -11,8 +12,8 @@ sudo apt-get update
 sudo apt-get -y install libdb4.8-dev libdb4.8++-dev
 
 cd /home/ubuntu
-if [ -d "/home/ubuntu/bitcoin" ]; then
-        rm -rf /home/ubuntu/bitcoin
+if [ -d ${SERVER_DIR}"/bitcoin" ]; then
+        rm -rf ${SERVER_DIR}/bitcoin
     fi
 git clone https://github.com/zqzqz/bitcoin.git
 
