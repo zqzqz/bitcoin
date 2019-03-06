@@ -11,13 +11,17 @@ sudo add-apt-repository -y ppa:bitcoin/bitcoin
 sudo apt-get update
 sudo apt-get -y install libdb4.8-dev libdb4.8++-dev
 
-cd /home/ubuntu
+cd ${SERVER_DIR}
 if [ -d ${SERVER_DIR}"/bitcoin" ]; then
-        rm -rf ${SERVER_DIR}/bitcoin
-    fi
+    rm -rf ${SERVER_DIR}/bitcoin
+fi
 git clone https://github.com/zqzqz/bitcoin.git
 
-cd bitcoin
+while [ ! -d ${SERVER_DIR}"/bitcoin" ]; then
+    sleep 2
+fi
+
+cd ${SERVER_DIR}/bitcoin
 git checkout loccs-dev
 ./autogen.sh
 ./configure --without-gui

@@ -1,16 +1,9 @@
 #!/bin/bash
+source $(cd `dirname $0`; pwd)/config
 
-TIME="300"
-PERIOD="12"
-ERROR=0
-LOOP=`python -c "print(int(float($TIME)/float($PERIOD)))"`
-
-for i in {1..$LOOP}
+NODE_RANGE=`expr $NODE_NUM - 1`
+for NODE_ID in {1..$NODE_RANGE}
 do
-    INTERNAL=`python -c "from random import random;print(random()*float($PERIOD))"`
-    sleep $INTERNAL
-    bitcoin-cli -regtest generate 1
-    sleep `python -c "print(float($PERIOD)-float($INTERNAL))"`
+    bash ${SERVER_DIR}/bitcoin/mytest/node_mine.sh &
+    sleep 0.02
 done
-
-echo "Quit mining"

@@ -28,13 +28,6 @@ done
 
 echo "Configuring accounts"
 
-# configure accounts
-for IP in $IP_LIST
-do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bitcoin-cli -regtest getnewaddress > ${SERVER_DIR}/account.txt" &
-    sleep 0.1
-done
-
 # wait for all backup process to finish
 SSH_FLAG=`ps | grep -c "ssh"`
 while [ "$SSH_FLAG" -ne 0 ]
@@ -46,16 +39,23 @@ done
 echo "Configuring network"
 
 # configure network
-for IP in $IP_LIST
+POINT_NUM=`expr ${!IP_ARRAY[@]} * ${NODE_NUM}`
+POINT_RANGE=`expr ${POINT_NUM} - 1`
+for POINT in {0..$POINT_RANGE}
 do
+    CUR_IP_INDEX=`expr $POINT / ${NODE_NUM}`
+    CUR_NODE_INDEX=`expr $POINT % ${NODE_NUM}`
     for i in {1..$NUM_NEIGHBOR}
     do
-        RANDOM_INDEX=`python -c "from random import randint;print(randint(0,${!IP_ARRAY[@]}-1))"`
-        if [ "${IP_ARRAY[$RANDOM_INDEX]}" == "$IP" ]; then
+        RANDOM_INDEX=`python -c "from random import randint;print(randint(0,${!IP_ARRAY[@]}*${NODE_NUM}-1))"`
+        IP_INDEX=`expr $RANDOM_INDEX / ${NODE_NUM}`
+        NODE_INDEX=`expr $RANDOM_INDEX % ${NODE_NUM}`
+        if [ "$IP_INDEX" -eq "$CUR_IP_INDEX" && "$NODE_INDEX" -eq "$CUR_NODE_INDEX" ]; then
             continue
         fi
-        ssh ${KEY_CONF} ${USER_NAME}@${IP} "bitcoin-cli -regtest addnode ${IP_ARRAY[$RANDOM_INDEX]} onetry" &
-        sleep 0.2
+        PORT=`expr ${DEFAULT_PORT} + $NODE_ID`
+        OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -rpcport=${PORT}"
+        ssh ${KEY_CONF} ${USER_NAME}@${IP_ARRAY[$CUR_IP_INDEX]} "bitcoin-cli ${OPTIONS} addnode ${IP_ARRAY[$IP_INDEX]}:${PORT} onetry &"
     done
 done
 
