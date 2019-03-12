@@ -12,14 +12,14 @@ sudo apt-get update
 sudo apt-get -y install libdb4.8-dev libdb4.8++-dev
 
 cd ${SERVER_DIR}
-if [ -d ${SERVER_DIR}"/bitcoin" ]; then
-    rm -rf ${SERVER_DIR}/bitcoin
+if [ ! -d ${SERVER_DIR}"/bitcoin" ]; then
+    git clone https://github.com/zqzqz/bitcoin.git
 fi
-git clone https://github.com/zqzqz/bitcoin.git
 
-while [ ! -d ${SERVER_DIR}"/bitcoin" ]; then
+while [ ! -d ${SERVER_DIR}"/bitcoin" ]
+do
     sleep 2
-fi
+done
 
 cd ${SERVER_DIR}/bitcoin
 git checkout loccs-dev
@@ -27,4 +27,4 @@ git checkout loccs-dev
 ./configure --without-gui
 make clean
 make
-make install
+sudo make install

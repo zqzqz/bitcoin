@@ -8,6 +8,7 @@ IP_LIST=`cat ${TEST_DIR}/ip.txt`
 for IP in $IP_LIST
 do
     scp ${KEY_CONF} ${TEST_DIR}/server_configure.sh ${USER_NAME}@${IP}:${SERVER_DIR}/server_configure.sh &
+    scp ${KEY_CONF} ${TEST_DIR}/config ${USER_NAME}@${IP}:${SERVER_DIR}/config &
     sleep 0.5
 done
 
@@ -21,8 +22,8 @@ done
 
 for IP in $IP_LIST
 do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_DIR}/server_configure.sh > configure_log &"
-    # ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_DIR}/server_configure.sh 2>&1 > configure_log" &
+    # ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_DIR}/server_configure.sh > configure_log &"
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_DIR}/server_configure.sh 2>&1 configure.log" &
     sleep 0.5
 done
 

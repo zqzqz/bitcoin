@@ -1,6 +1,6 @@
 BASE_DIR="/home/loccs"
 SERVER_DIR="/home/loccs"
-KEY_CONF="-i ~/.ssh/id_rsa.pub"
+KEY_CONF="-i ~/.ssh/id_rsa"
 USER_NAME="loccs"
 TX_TIME="300"
 TX_PERIOD="0.2"
