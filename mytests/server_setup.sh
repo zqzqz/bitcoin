@@ -2,10 +2,15 @@
 set -e
 source $(cd `dirname $0`; pwd)/config
 
-kill $(ps -e | grep "bitcoin")
+PROCESS_NUM=`ps -e | grep -c "bitcoin"`
+echo $PROCESS_NUM
+if [ $PROCESS_NUM -ne "0" ]; then
+    echo `ps -e | grep "bitcoin" | awk '{print $1}'`
+    kill `ps -e | grep "bitcoin" | awk '{print $1}'`
+fi
 
 NODE_RANGE=`expr $NODE_NUM - 1`
-for NODE_ID in {0..$NODE_RANGE}
+for NODE_ID in $(seq 0 1 $NODE_RANGE)
 do
     BITCOIN_DIR=${SERVER_DIR}"/.bitcoin/regtest${NODE_ID}"
     PORT=`expr ${DEFAULT_PORT} + $NODE_ID`
