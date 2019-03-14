@@ -44,7 +44,8 @@ do
             continue
         fi
         PORT=`expr $DEFAULT_PORT + $NODE_INDEX`
-        OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -rpcport=${PORT}"
+        RPCPORT=`expr ${DEFAULT_RPCPORT} + $NODE_INDEX`
+        OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -port=${PORT} -rpcport=${RPCPORT}"
         ssh ${KEY_CONF} ${USER_NAME}@${IP_ARRAY[$CUR_IP_INDEX]} "bitcoin-cli ${OPTIONS} addnode ${IP_ARRAY[$IP_INDEX]}:${PORT} onetry &"
     done
 done

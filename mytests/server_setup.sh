@@ -20,7 +20,6 @@ do
     PORT=`expr ${DEFAULT_PORT} + $NODE_ID`
     RPCPORT=`expr ${DEFAULT_RPCPORT} + $NODE_ID`
     OPTIONS="-regtest -datadir=${BITCOIN_DIR} -port=${PORT} -rpcport=${RPCPORT}"
-    bitcoin-cli ${OPTIONS} stop
     if [ -d ${BITCOIN_DIR} ]; then
         rm -rf ${BITCOIN_DIR}
     fi
