@@ -2,7 +2,8 @@
 
 NODE_ID=$1
 PORT=`expr ${DEFAULT_PORT} + $NODE_ID`
-OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -rpcport=${PORT}"
+RPCPORT=`expr ${DEFAULT_RPCPORT} + $NODE_ID`
+OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -port=${PORT} -rpcport=${RPCPORT}"
 ERROR=0
 LOOP=`python -c "print(int(float($MINE_TIME)/float($MINE_PERIOD)))"`
 
