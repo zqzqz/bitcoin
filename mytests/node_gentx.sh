@@ -12,10 +12,9 @@ ACCOUNT=`cat ${SERVER_DIR}/.bitcoin/regtest${NODE_ID}/account.txt`
 ACCOUNT2=`cat ${SERVER_DIR}/.bitcoin/regtest${NODE_ID}/account2.txt`
 
 BALANCE=`bitcoin-cli ${OPTIONS} getbalance`
-if [ $BALANCE -gt "0"]; then
-
-    for i in {1..$LOOP}
-    do
+for i in {1..$LOOP}
+do
+    if [ $BALANCE -gt "0" ]; then
         INTERNAL=`python -c "from random import random;print(random()*float($TX_PERIOD))"`
         sleep $INTERNAL
         FLAG=$(($i % 2))
@@ -25,8 +24,9 @@ if [ $BALANCE -gt "0"]; then
             bitcoin-cli -regtest sendfrom $ACCOUNT2 $ACCOUNT 0.0001
         fi
         sleep `python -c "print(float($TX_PERIOD)-float($INTERNAL))"`
-    done
-
-fi
+    else
+        sleep $TX_PERIOD
+    fi
+done
 
 echo "Quit transaction generating"
