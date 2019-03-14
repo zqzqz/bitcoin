@@ -14,7 +14,7 @@ echo "Launching client"
 # launch daemon server
 for IP in $IP_LIST
 do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_TEST_DIR}/server_setup.sh > ${SERVER_DIR}/setup_log"
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "bash ${SERVER_TEST_DIR}/server_setup.sh > ${SERVER_DIR}/setup_log" &
 done
 
 # wait for all backup process to finish

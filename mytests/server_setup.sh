@@ -32,7 +32,7 @@ do
 
     sleep 1
     bitcoind ${OPTIONS} -daemon
-    sleep 2
+    sleep 5
     bitcoin-cli ${OPTIONS} getnewaddress > ${BITCOIN_DIR}/account.txt
     bitcoin-cli ${OPTIONS} getnewaddress > ${BITCOIN_DIR}/account2.txt
 done
