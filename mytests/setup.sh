@@ -43,9 +43,12 @@ do
         if [ "$IP_INDEX" -eq "$CUR_IP_INDEX" -a "$NODE_INDEX" -eq "$CUR_NODE_INDEX" ]; then
             continue
         fi
-        PORT=`expr $DEFAULT_PORT + $NODE_INDEX`
-        RPCPORT=`expr ${DEFAULT_RPCPORT} + $NODE_INDEX`
-        OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -port=${PORT} -rpcport=${RPCPORT}"
+        CUR_PORT=`expr ${DEFAULT_PORT} + ${CUR_NODE_INDEX}`
+        CUR_RPCPORT=`expr ${DEFAULT_RPCPORT} + ${CUR_NODE_INDEX}`
+        PORT=`expr ${DEFAULT_PORT} + ${NODE_INDEX}`
+        RPCPORT=`expr ${DEFAULT_RPCPORT} + ${NODE_INDEX}`
+        OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -port=${CUR_PORT} -rpcport=${CUR_RPCPORT}"
+        echo "connecting "${IP_ARRAY[$CUR_IP_INDEX]}:${CUR_PORT}" to "${IP_ARRAY[$IP_INDEX]}:${PORT}
         ssh ${KEY_CONF} ${USER_NAME}@${IP_ARRAY[$CUR_IP_INDEX]} "bitcoin-cli ${OPTIONS} addnode ${IP_ARRAY[$IP_INDEX]}:${PORT} onetry &"
     done
 done
