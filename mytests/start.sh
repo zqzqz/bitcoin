@@ -8,10 +8,8 @@ IP_LIST=`cat ${TEST_DIR}/ip.txt`
 
 for IP in $IP_LIST
 do
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_TEST_DIR}/server_gentx.sh > ${SERVER_DIR}/tx_log &" &
-    sleep 0.02
-    ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_TEST_DIR}/server_mine.sh > ${SERVER_DIR}/mine_log &" &
-    sleep 0.02
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_TEST_DIR}/server_gentx.sh > ${SERVER_DIR}/tx_log &"
+    ssh ${KEY_CONF} ${USER_NAME}@${IP} "nohup bash ${SERVER_TEST_DIR}/server_mine.sh > ${SERVER_DIR}/mine_log &"
 done
 
 # wait for all backup process to finish

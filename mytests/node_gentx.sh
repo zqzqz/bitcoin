@@ -12,7 +12,7 @@ ACCOUNT=`cat ${SERVER_DIR}/.bitcoin/regtest${NODE_ID}/account.txt`
 ACCOUNT2=`cat ${SERVER_DIR}/.bitcoin/regtest${NODE_ID}/account2.txt`
 
 BALANCE=`bitcoin-cli ${OPTIONS} getbalance`
-for i in {1..$LOOP}
+for i in $(seq 1 1 $LOOP)
 do
     if [ $BALANCE -gt "0" ]; then
         INTERNAL=`python -c "from random import random;print(random()*float($TX_PERIOD))"`

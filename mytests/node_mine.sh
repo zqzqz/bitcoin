@@ -7,7 +7,7 @@ OPTIONS="-regtest -datadir=${SERVER_DIR}/.bitcoin/regtest${NODE_ID} -port=${PORT
 ERROR=0
 LOOP=`python -c "print(int(float($MINE_TIME)/float($MINE_PERIOD)))"`
 
-for i in {1..$LOOP}
+for i in $(seq 1 1 $LOOP)
 do
     INTERNAL=`python -c "from random import random;print(random()*float($MINE_PERIOD))"`
     sleep $INTERNAL
