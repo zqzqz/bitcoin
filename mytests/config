@@ -9,10 +9,10 @@ NODE_NUM="2"
 # number of neighbors each node has
 NEIGHBOR_NUM="10"
 # the total time length (sec) of generating transactions, usually the same as MINE_TIME
-TX_TIME="300"
+TX_TIME="10"
 # the period (sec) of generating transactions
-TX_PERIOD="0.2"
+TX_PERIOD="0.5"
 # the total time length (sec) of generating blocks, usually the same as TX_TIME
-MINE_TIME="300"
+MINE_TIME="10"
 # the period (sec) of generating blocks
 MINE_PERIOD="1"
