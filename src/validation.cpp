@@ -1175,14 +1175,15 @@ bool IsInitialBlockDownload()
     LOCK(cs_main);
     if (latchToFalse.load(std::memory_order_relaxed))
         return false;
-    if (fImporting || fReindex)
-        return true;
-    if (chainActive.Tip() == nullptr)
-        return true;
-    if (chainActive.Tip()->nChainWork < nMinimumChainWork)
-        return true;
-    if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
-        return true;
+    // edit
+    // if (fImporting || fReindex)
+    //     return true;
+    // if (chainActive.Tip() == nullptr)
+    //     return true;
+    // if (chainActive.Tip()->nChainWork < nMinimumChainWork)
+    //     return true;
+    // if (chainActive.Tip()->GetBlockTime() < (GetTime() - nMaxTipAge))
+    //     return true;
     LogPrintf("Leaving InitialBlockDownload (latching to false)\n");
     latchToFalse.store(true, std::memory_order_relaxed);
     return false;
@@ -3518,6 +3519,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     if (!AcceptBlockHeader(block, state, chainparams, &pindex))
         return false;
 
+    LogPrintf("TEST: enter AcceptBlock check 1\n");
+
     // Try to process all requested blocks that we don't have, but only
     // process an unrequested block if it's new and has enough work to
     // advance our tip, and isn't too many blocks ahead.
@@ -3560,10 +3563,16 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
         return error("%s: %s", __func__, FormatStateMessage(state));
     }
 
+    LogPrintf("TEST: enter AcceptBlock check 2\n");
+
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
-    if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev)
+    // edit
+    // if (!IsInitialBlockDownload() && chainActive.Tip() == pindex->pprev)
+    if (!IsInitialBlockDownload()) {
+        LogPrintf("TEST: calling NewPowValidBlock\n");
         GetMainSignals().NewPoWValidBlock(pindex, pblock);
+    }
 
     LogPrintf("TEST: enter AcceptBlock Tip %s\n", chainActive.Tip()->GetBlockHash().ToString());
     // Write block to history file

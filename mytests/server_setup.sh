@@ -31,7 +31,7 @@ do
     printf "rpcuser=USER\nrpcpassword=PASS" > ${BITCOIN_DIR}/bitcoin.conf
 
     sleep 1
-    bitcoind ${OPTIONS} -daemon
+    bitcoind ${OPTIONS} -debug=1 -daemon
     sleep 5
     bitcoin-cli ${OPTIONS} getnewaddress > ${BITCOIN_DIR}/account.txt
     bitcoin-cli ${OPTIONS} getnewaddress > ${BITCOIN_DIR}/account2.txt

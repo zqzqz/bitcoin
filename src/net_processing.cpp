@@ -790,10 +790,12 @@ void Misbehaving(NodeId pnode, int howmuch)
 static bool BlockRequestAllowed(const CBlockIndex* pindex, const Consensus::Params& consensusParams)
 {
     AssertLockHeld(cs_main);
-    if (chainActive.Contains(pindex)) return true;
-    return pindex->IsValid(BLOCK_VALID_SCRIPTS) && (pindexBestHeader != nullptr) &&
-        (pindexBestHeader->GetBlockTime() - pindex->GetBlockTime() < STALE_RELAY_AGE_LIMIT) &&
-        (GetBlockProofEquivalentTime(*pindexBestHeader, *pindex, *pindexBestHeader, consensusParams) < STALE_RELAY_AGE_LIMIT);
+    // edit
+    return true;
+    // if (chainActive.Contains(pindex)) return true;
+    // return pindex->IsValid(BLOCK_VALID_SCRIPTS) && (pindexBestHeader != nullptr) &&
+    //     (pindexBestHeader->GetBlockTime() - pindex->GetBlockTime() < STALE_RELAY_AGE_LIMIT) &&
+    //     (GetBlockProofEquivalentTime(*pindexBestHeader, *pindex, *pindexBestHeader, consensusParams) < STALE_RELAY_AGE_LIMIT);
 }
 
 PeerLogicValidation::PeerLogicValidation(CConnman* connmanIn, CScheduler &scheduler) : connman(connmanIn), m_stale_tip_check_time(0) {
@@ -853,11 +855,12 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
     const CNetMsgMaker msgMaker(PROTOCOL_VERSION);
 
     LOCK(cs_main);
-
-    static int nHighestFastAnnounce = 0;
-    if (pindex->nHeight <= nHighestFastAnnounce)
-        return;
-    nHighestFastAnnounce = pindex->nHeight;
+    LogPrintf("TEST: NewPoWValidBlock height %d\n", pindex->nHeight);
+    // edit
+    // static int nHighestFastAnnounce = 0;
+    // if (pindex->nHeight <= nHighestFastAnnounce)
+    //     return;
+    // nHighestFastAnnounce = pindex->nHeight;
 
     bool fWitnessEnabled = IsWitnessEnabled(pindex->pprev, Params().GetConsensus());
     uint256 hashBlock(pblock->GetHash());
@@ -878,9 +881,10 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
         CNodeState &state = *State(pnode->GetId());
         // If the peer has, or we announced to them the previous block already,
         // but we don't think they have this one, go ahead and announce it
-        if (state.fPreferHeaderAndIDs && (!fWitnessEnabled || state.fWantsCmpctWitness) &&
-                !PeerHasHeader(&state, pindex) && PeerHasHeader(&state, pindex->pprev)) {
-
+        // edit
+        // if (state.fPreferHeaderAndIDs && (!fWitnessEnabled || state.fWantsCmpctWitness) &&
+        //         !PeerHasHeader(&state, pindex) && PeerHasHeader(&state, pindex->pprev)) {
+        if (true) {
             LogPrint(BCLog::NET, "%s sending header-and-ids %s to peer=%d\n", "PeerLogicValidation::NewPoWValidBlock",
                     hashBlock.ToString(), pnode->GetId());
             connman->PushMessage(pnode, msgMaker.Make(NetMsgType::CMPCTBLOCK, *pcmpctblock));
@@ -890,6 +894,7 @@ void PeerLogicValidation::NewPoWValidBlock(const CBlockIndex *pindex, const std:
 }
 
 void PeerLogicValidation::UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload) {
+    LogPrintf("TEST: enter UpdatedBlockTip, height %d\n", pindexNew->nHeight);
     const int nNewHeight = pindexNew->nHeight;
     connman->SetBestHeight(nNewHeight);
 
@@ -1314,20 +1319,29 @@ bool static ProcessHeadersMessage(CNode *pfrom, CConnman *connman, const std::ve
             return true;
         }
 
-        uint256 hashLastBlock;
+        // edit
+        std::vector<uint256> hashBlock;
         for (const CBlockHeader& header : headers) {
-            if (!hashLastBlock.IsNull() && header.hashPrevBlock != hashLastBlock) {
-                Misbehaving(pfrom->GetId(), 20);
-                return error("non-continuous headers sequence");
+            hashBlock.push_back(header.GetHash());
+        }
+        for (const CBlockHeader& header : headers) {
+            // if (!hashLastBlock.IsNull() && header.hashPrevBlock != hashLastBlock) {
+            //     Misbehaving(pfrom->GetId(), 20);
+            //     return error("non-continuous headers sequence");
+            // }
+            // hashLastBlock = header.GetHash();
+            LogPrintf("TEST: processing header %s\n", header.GetHash().ToString());
+            if (mapBlockIndex.find(header.hashPrevBlock) == mapBlockIndex.end()) {
+                received_new_header = true;
+                break;
             }
-            hashLastBlock = header.GetHash();
         }
 
         // If we don't have the last header, then they'll have given us
         // something new (if these headers are valid).
-        if (mapBlockIndex.find(hashLastBlock) == mapBlockIndex.end()) {
-            received_new_header = true;
-        }
+        // if (mapBlockIndex.find(hashLastBlock) == mapBlockIndex.end()) {
+        //     received_new_header = true;
+        // }
     }
 
     CValidationState state;
@@ -2886,6 +2900,7 @@ static bool SendRejectsAndCheckIfBanned(CNode* pnode, CConnman* connman)
 
 bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& interruptMsgProc)
 {
+    // LogPrintf("TEST: enter ProcessMessage in net_processing\n");
     const CChainParams& chainparams = Params();
     //
     // Message format
