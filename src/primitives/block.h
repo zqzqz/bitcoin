@@ -11,7 +11,6 @@
 #include <uint256.h>
 #include <arith_uint256.h>
 #define POWER_CRITICAL 16
-#define POWER_TX_SHARD 2
 #define NUM_TX_SHARD 7
 #define NUM_REF 4
 
