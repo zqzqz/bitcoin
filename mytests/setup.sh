@@ -35,7 +35,7 @@ for POINT in $(seq 0 1 $POINT_RANGE)
 do
     CUR_IP_INDEX=`expr $POINT / ${NODE_NUM}`
     CUR_NODE_INDEX=`expr $POINT % ${NODE_NUM}`
-    for i in {1..$NUM_NEIGHBOR}
+    for i in $(seq 0 1 $NEIGHBOR_NUM)
     do
         RANDOM_INDEX=`python -c "from random import randint;print(randint(0,${#IP_ARRAY[@]}*${NODE_NUM}-1))"`
         IP_INDEX=`expr $RANDOM_INDEX / ${NODE_NUM}`
