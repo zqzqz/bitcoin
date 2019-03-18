@@ -14,15 +14,10 @@ ACCOUNT2=`cat ${SERVER_DIR}/.bitcoin/regtest${NODE_ID}/account2.txt`
 BALANCE=`bitcoin-cli ${OPTIONS} getbalance`
 for i in $(seq 1 1 $LOOP)
 do
-    if [ $BALANCE -gt "0" ]; then
+    if [ ${BALANCE%.*} -gt "0" ]; then
         INTERNAL=`python3 -c "from random import random;print(random()*float($TX_PERIOD))"`
         sleep $INTERNAL
-        FLAG=$(($i % 2))
-        if [ $FLAG -eq 1 ]; then
-            bitcoin-cli -regtest sendfrom $ACCOUNT $ACCOUNT2 0.0001
-        else
-            bitcoin-cli -regtest sendfrom $ACCOUNT2 $ACCOUNT 0.0001
-        fi
+        bitcoin-cli -regtest sendtoaddress $ACCOUNT "0.000000001"
         sleep `python3 -c "print(float($TX_PERIOD)-float($INTERNAL))"`
     else
         sleep $TX_PERIOD
