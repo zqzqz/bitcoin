@@ -17,7 +17,7 @@ do
     if [ ${BALANCE%.*} -gt "0" ]; then
         INTERNAL=`python3 -c "from random import random;print(random()*float($TX_PERIOD))"`
         sleep $INTERNAL
-        bitcoin-cli -regtest sendtoaddress $ACCOUNT "0.000000001"
+        bitcoin-cli ${OPTIONS} sendtoaddress $ACCOUNT "0.000000001"
         sleep `python3 -c "print(float($TX_PERIOD)-float($INTERNAL))"`
     else
         sleep $TX_PERIOD
