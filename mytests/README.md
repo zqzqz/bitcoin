@@ -59,7 +59,7 @@ Later in the second step, the script randomly connects the nodes with others by 
 
 * Run `bash start.sh`  
 Given configuration in `config`, all nodes will start generating transactions and blocks periodically.  
-**NOTICE** The nodes will not send out any transaction when their balance is zero. But the reward of minning blocks is only available after 100 blocks, which is a LONG time for testing. Trying to modify this setting of original bitcoin code. **TBD**
+**NOTICE** The nodes will not send out any transaction when their balance is zero. The reward of mined blocks is avaiable after 1 block.
 
 * See results using `bitcoin-cli getblockchaininfo`  
 Also, you can edit `getblockchaininfo` in `src/rpc/blockchain.cpp` to customize your reports  
